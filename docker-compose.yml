@@ -1,0 +1,11 @@
+version: "3.9"
+networks:
+  api: {}
+services:
+  task-api:
+    image: r0893183/python-api-basic
+    container_name: task-api
+    networks:
+      - api
+    ports:
+      - 8000:8000
