@@ -5,11 +5,15 @@ import sqlite3                                      # sqlite db connector
 from pydantic import BaseModel                      # base model for data validation
 from fastapi.middleware.cors import CORSMiddleware  # CORS
 
+# put class
+class Item(BaseModel):
+    name: str = None
+
 # post class
-class Task(BaseModel):
-    title: str = None
-    description: str = None
-    done: str = False
+class Order(BaseModel):
+    itemid: str = None
+    userid: str = None
+    amount: str = None
 
 # init app
 app = FastAPI()
@@ -40,61 +44,140 @@ def rmv_json(file):
 # return link to docs if people are lazy and didn't read the docs
 @app.get("/")
 def read_root():
-    return {"docs": "https://github.com/rmetdep/python-api-basic"}
+    return {"docs": "https://github.com/rmetdep/python-api-webshop"}
 
-@app.get("/tasks") # get a list of all tasks
-async def get_tasks():
+# ----------------------
+#         ITEMS
+# ----------------------
+
+@app.get("/items") # get a list of all items
+async def get_items():
     conn = sqlite3.connect('data.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
-    file = cur.execute("SELECT * FROM task;").fetchall()
+    file = cur.execute("SELECT * FROM item;").fetchall()
     conn.close()
     return file
 
-@app.get("/tasks/{taskid}") # get a task by id
-async def get_task_by_id(taskid: str):
+@app.get("/items/{itemid}") # get an item by id
+async def get_item_by_id(itemid: str):
     conn = sqlite3.connect('data.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
-    file = cur.execute("SELECT * FROM task WHERE taskId=" + taskid + ";").fetchall()
+    file = cur.execute("SELECT * FROM item WHERE itemId=" + itemid + ";").fetchall()
     conn.close()
     return file
 
-@app.delete("/tasks/{taskid}") # delete a task by id
-async def delete_task_by_id(taskid: str):
+@app.put("/items") # add an item and return it with an id
+async def add_item(item: Item):
+    print(item)
     conn = sqlite3.connect('data.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
-    file = cur.execute("SELECT * FROM task WHERE taskId=" + taskid + ";").fetchall()
+    file = cur.execute("SELECT itemName FROM item;").fetchall()
+    conn.close()
+    for x in file:
+        if rmv_json(str(x)) == item.name:
+            return {"response": "item already exists"}
+    conn = sqlite3.connect('data.db')
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    cur.execute("INSERT INTO item (itemName) VALUES ('" + item.name + "');")
+    conn.commit()
+    conn.close()
+    return {"response": item.name + " added"}
+
+@app.delete("/items/{itemid}") # delete an item by id
+async def delete_item_by_id(itemid: str):
+    conn = sqlite3.connect('data.db')
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    file = cur.execute("SELECT * FROM item WHERE itemId=" + itemid + ";").fetchall()
     conn.close()
     if file == []:
-        return {"response": "task does not exist"}
+        return {"response": "item does not exist"}
     try:
         conn = sqlite3.connect('data.db')
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        cur.execute("DELETE FROM task WHERE taskId=" + taskid + ";")
+        cur.execute("DELETE FROM item WHERE itemId=" + itemid + ";")
         conn.commit()
         conn.close()
     except:
-        return {"response": "failed to delete task"}
-    return {"response": "task deleted"}
+        return {"response": "failed to delete item"}
+    return {"response": "item deleted"}
 
-@app.post("/tasks") # add a task and return it with an id
-async def add_task(task: Task):
-    print(task)
+# ----------------------
+#        ORDERS
+# ----------------------
+
+@app.get("/orders") # get a list of all items
+async def get_orders():
     conn = sqlite3.connect('data.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
-    file = cur.execute("SELECT taskTitle FROM task;").fetchall()
+    file = cur.execute("SELECT * FROM orders;").fetchall()
     conn.close()
-    for x in file:
-        if rmv_json(str(x)) == task.title:
-            return {"response": "task already exists"}
+    return file
+
+@app.get("/orders/{orderid}") # get an item by id
+async def get_order_by_id(orderid: str):
     conn = sqlite3.connect('data.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
-    cur.execute("INSERT INTO task (taskTitle, taskDescription, taskDone) VALUES ('" + task.title + "', '" + task.description + "', '" + task.done + "');")
+    file = cur.execute("SELECT * FROM orders WHERE orderId=" + orderid + ";").fetchall()
+    conn.close()
+    return file
+
+@app.post("/orders") # add an order and return it with an id
+async def add_order(order: Order):
+    print(order)
+    conn = sqlite3.connect('data.db')
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    cur.execute("INSERT INTO orders (itemId, userId, amount) VALUES ('" + order.itemid + "', '" + order.userid + "', '" + order.amount + "');")
     conn.commit()
     conn.close()
-    return {"response": task.title + " added"}
+    return {"response": order.itemid + " * " + order.amount + " added"}
+
+@app.delete("/orders/{orderid}") # delete an order by id
+async def delete_order_by_id(orderid: str):
+    conn = sqlite3.connect('data.db')
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    file = cur.execute("SELECT * FROM orders WHERE orderId=" + orderid + ";").fetchall()
+    conn.close()
+    if file == []:
+        return {"response": "order does not exist"}
+    try:
+        conn = sqlite3.connect('data.db')
+        conn.row_factory = dict_factory
+        cur = conn.cursor()
+        cur.execute("DELETE FROM orders WHERE orderId=" + orderid + ";")
+        conn.commit()
+        conn.close()
+    except:
+        return {"response": "failed to delete order"}
+    return {"response": "order deleted"}
+
+# ----------------------
+#         USERS
+# ----------------------
+
+@app.get("/users") # get a list of all items
+async def get_users():
+    conn = sqlite3.connect('data.db')
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    file = cur.execute("SELECT * FROM user;").fetchall()
+    conn.close()
+    return file
+
+@app.get("/users/{userid}") # get an item by id
+async def get_user_by_id(userid: str):
+    conn = sqlite3.connect('data.db')
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    file = cur.execute("SELECT * FROM user WHERE userId=" + userid + ";").fetchall()
+    conn.close()
+    return file

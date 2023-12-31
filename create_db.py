@@ -5,15 +5,25 @@ conn = sqlite3.connect('data.db')
 print("Opened database successfully")
 
 # raw data
-task = ["'Water', 'Plants', 'False'", "'Homework', 'basic API', 'False'", "'Make food', 'Belgian Fries with Pork tenderloin with mushroom sauce', 'False'"]
+user = ["'John'", "'Jane'", "'Bob'"]
+item = ["'Dino'", "'Boat'", "'Octopus'"]
+order = ["'1', '1', '1'", "'2', '1', '2'", "'3', '2', '1'"]
 
 # create tables
-conn.execute("CREATE TABLE task (taskId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, taskTitle TEXT, taskDescription TEXT, taskDone BOOL);")
+conn.execute("CREATE TABLE user (userId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, userName TEXT);")
+conn.execute("CREATE TABLE item (itemId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, itemName TEXT);")
+conn.execute("CREATE TABLE orders (orderId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, itemId TEXT, userId TEXT, amount TEXT);")
 print("Created tables successfully")
 
 # insert data
-for x in task:
-    conn.execute("INSERT INTO task (taskTitle, taskDescription, taskDone) VALUES (" + x + ");")
+for x in user:
+    conn.execute("INSERT INTO user (userName) VALUES (" + x + ");")
+
+for x in item:
+    conn.execute("INSERT INTO item (itemName) VALUES (" + x + ");")
+
+for x in order:
+    conn.execute("INSERT INTO orders (itemId, userId, amount) VALUES (" + x + ");")
 
 print("Inserted data successfully")
 
