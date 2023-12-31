@@ -3,8 +3,8 @@ networks:
   api: {}
 services:
   task-api:
-    image: r0893183/python-api-basic
-    container_name: task-api
+    image: r0893183/python-api-webshop
+    container_name: webshop-api
     networks:
       - api
     ports:

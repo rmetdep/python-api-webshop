@@ -1,20 +1,13 @@
-# python-api-basic
+# python-api-webshop
 API Development project
 
-The theme is a simple task manager to keep track of tasks and their status.
-
-You can create, read and delete tasks.
+The theme is a webshop that has items and orders. For the OAuth component, there also are users.
 
 ### Api Links
-- [API Endpoint on Okteto](https://task-api-rmetdep.cloud.okteto.net)
-- [Frontend on Githgub Pages](https://rmetdep.github.io)
-- [Frontend on private servers](https://api-basic.nd1.be)
+- [API Endpoint on Okteto](https://example-rmetdep.cloud.okteto.net)
 
 ### Postman screenshots
-![addtask](images/addtask.png)
-![listalltask](images/listalltask.png)
-![listtaskbyid](images/listtaskbyid.png)
-![deletetask](images/deletetask.png)
+![example](images/example.png)
 
 ### Docs screenshots
 ![docs](images/docs.png)
